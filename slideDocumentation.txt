@@ -1,0 +1,142 @@
+slide puzzle notes
+
+Functions:
+	makeText(): returns a a pygame.surface object and pygame.rect onject that is used to make clickable buttons
+		parameters:text,color of text, color of button, width, height
+				Creates the surface and rect objects for positioning text on the screen
+				create a surface object using render, get the rect of the surface objectr using get_rect()
+				position the text by assigning one of the rectangles attributes a coordinate
+				return the surface object and the rectangle
+		
+		
+	generateNewPuzzle(int): this returns a board that has been jumbled up int number of times and a list containing all those moves
+		parameters:number of moves to jumble
+			variables: sequence(a list)
+				Create a new board by calling getStartingBoard()
+				draw the board to the screen wait 5 seconds then start jumbling it
+				Jumble it by calling makeMove and slideAnimation in a for loop that repeats int number of times
+				append the move we make to the sequence list
+				return the jumbled board and the sequence list containing all the moves we did
+
+	
+	getBlankPosition(): returns the coordinates of the blank tile on the board
+		parameters: board
+			variables: | uses BOARDWIDTH, BOARDHEIGHT 
+				Uses a nested for loop to go through ever row (BOARDHEIGHT) and column (BOARDWIDTH)
+				to find the board value that is None as that is the  blank box 
+	
+	
+	slideAnimation():performs the sliding and i guess plays the animation
+		parameters: board, direction of slide, message to display while sliding,slide speed
+			Using the coordinates of the blank position translate the directions in text to moves
+			e.g UP  would be translated as movey = blanky + 1 while movex stays the same
+			draw the board using drawBoard()
+			make a copy of HiRez
+			convert movex and movey to pixel coordinates
+			draw a rectangle on the copy of HiRez using the pixel coordinate
+			
+			*Animate using a for loop. blit the copy to HiRez and draw the tile moving 
+			Firs off you see we created a copy of HiRez and on this copy of HiRez we just drew a blank rectangle with the background color
+			at the spot were the tile being animated would have been that way while we are drawing the tile at different
+			positions in this for loop we wont have a red box remaining there.
+	makeMove():update the board data structure(the list)
+		parameters: board,direction of slide
+				uses getBlankPosition() to get the board coordinate of the blank board and then swap the blank board with the board at the location of the move 
+				(i.e swap their coordinates)
+	
+	
+	terminate(): quits the program
+	
+	
+	checkForQuit():pulls a list of QUIT events from pygames event queu if there are any then the program terminates
+	
+	
+	getStartingBoard():create and return a data structure that represents a solved board 
+			variables: counter(an int), board(a list) ,column(a list) | uses BOARDWIDTH
+				Uses nested for loops to create the table in the form of a list. creates a list of list...
+				the list represents the table the inner list represents each column and each item in the inner list represents a cell in a column
+				also sets the the last box as None inorder to make it blank
+				counter is used to get the digit that will be written on the cell
+				
+				
+	isValidMove(): self explanatory
+		parameters:board,move player trying to make
+				Uses the blank position coordinates to check if there is any blank space in the right place for a certain move
+		
+		
+	getRandomMove(): returns a random move while also making sure no move counters the previous move and no move is invalid
+		parameters:board, last move that was done
+			variables: validMoves(list of moves)
+				Uses if statements to make sure that if a certain move is not valid or counters the previous move then the move will be removed from
+				the list of moves before a random move is selected from the list
+	
+		
+	getLeftTopOfTile():converts board coordinates to pixel coordinates. For the board XY coordinates that are passed in, the function calculates and returns the pixel XY coordinates of the pixel at the top left of that board space.
+		parameters: x coordinate in box, y coordinate in box
+		
+		
+	getSpotClicked():converts pixel coordinate to board coordinate. checks if a set of x and y coordinate collides with any box in a dummy board if it does it returns the row and column of that box(board coordinate)
+		parameters: board, x , y
+				Uses nested for loops to draw each cell in the board one by one using pixel coordinatesit then checks if each board it draws collides with the given board coordinates
+				and if they do collide it returns them and if the user clicks on empty space it returns none
+		
+		
+	drawTile(): draws a single numbered tile on the board
+		parameters: x board coordinate, y board coordinate, string representing number of tile e.g '3', value representing adjustment in the x axis used when animating the sliding, ditto for y
+				draws a rectangle at the coordinates provided after converting them to pixel coordinates. 
+				creates a surface object using the render() that contains the number of the tile.
+				gets the rectangle that these things usually has (get_rect())
+				blit the surface object to hirez
+				
+				
+	drawBoard():handles drawing the entire board and all of its tiles to the HiRez display surfave object
+		parameters: board,message that will be shown on the top left
+			variables:baseSurf(a copy of the HiRez surface object)
+				we check if theres a message and if there is we use makeText to render the message and the message rectangle
+				we blit the message and message rectangle to HiRez
+				
+				we iterate over each column and row using the board list and we draw a tile if there is a value available in the list using drawTile
+				
+				we draw a border by getting the top left of the board in pixel coordinates using getLeftTopOfTile()
+				
+				we convert the BOARDWIDTH AND BOARDHEIGHT values into actual width and height values(pixel coordinates) by multiplying them by TILESIZE
+				we draw a rectangle at the top, left -5 with a thiccness of 4 and with a width and height 11 bigger
+				
+				we blit the reset, new and solve surface object and rect (the buttons) to HiRez
+				
+				
+	
+	resetAnimation():does the opposite of all the moves in  allMoves in reverse
+		parameters: board, allMoves list
+			variables: revAllMoves(a copy of the list allMoves)
+				use the reverse() method on the revAllMoves list
+				use a for loop to iterate over every item in the revAllMoves list
+				for every move in the list create a variable called oppositeMove
+				then for every move call slideAnimation and makeMove on board using the oppositeMove variable
+	
+	
+	
+	The main game loop:
+		we set slideTo to None
+		we set a msg
+		we check if the mainBoard == SOLVEDBOARD and change the msg to solved if it is
+		
+		we draw the board 
+		
+		check for quits
+		
+		The event handling loop
+			we check for the mouse button up event
+			we use getSpotClicked to convert the events pixel coordinates to board coordinates spotx and spoty
+			
+			when spotx and spoty is none it means the user didnt click on any cells in the box and so they could have clicked on oen of the buttons
+			so we check if the user clicked on a button and what button the user clicked by checking if the button box collides with the event pixel coordinates (since spotx and y is none here)
+			we dont just check if the user clicked any particular button,we check and then we write the code that button is supposed t odo
+			
+			if spotx and spoty isnt none then we getBlankPosition() and we check if spotx or spoty is next to any blank spot, if it is
+			then we set slideTo to be the postion the blank spot is at
+			
+			we check if slideTo is not None if it isnt then we call slideAnimation() and makeMove() and we append the moves we made to allMoves
+			
+			pygame.display.update 
+			FPSCLOCK.tick(FPS)
